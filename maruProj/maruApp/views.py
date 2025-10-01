@@ -35,7 +35,8 @@ def load_books_from_json(json_path):
 
 
 def book_chart(request):
-    books = load_books_from_json('maruApp/data/test.json')                     # 연습용 데이터
+    # books = load_books_from_json('maruApp/data/test.json')  # 연습용 데이터
+    books = load_books_from_json('maruApp/data/bestseller_all.json')
     
     # 카테고리별 개수 집계
     genres = [book.genre for book in books]
