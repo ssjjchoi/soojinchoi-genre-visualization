@@ -1,0 +1,22 @@
+<div id="page_top">
+    <section id="page_title"><h1>MARU Book analysis</h1></section>
+
+    <section id="switch_pages">
+    <a class="page_switch_button{% if request.path == '/maru/' %} active{% endif %}" href="/maru/">Main</a>
+    <a class="page_switch_button{% if request.path == '/maru/genre/' %} active{% endif %}" href="/maru/genre/">Genre</a>
+    <a class="page_switch_button{% if request.path == '/maru/location/' %} active{% endif %}" href="/maru/location/">Location</a>
+    </section>
+</div>
+{% comment %}
+    세부 지역 선택은 우선 숨김처리했습니다.
+    지역 담당이신 분이 적당히 페이지에 가져가서 사용해주세요.
+{% endcomment %}
+{% comment %} <div class="wrap_button">
+    <div class="button_list">
+        <!--버튼도 페이지 요구사항에 따라 텍스트 변경-->
+        <button class="btn" type="button">지역1</button>
+        <button class="btn" type="button">지역1</button>
+        <button class="btn" type="button">---</button>
+        <button class="btn" type="button">---</button>
+    </div>
+</div> {% endcomment %}

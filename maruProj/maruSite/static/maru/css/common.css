@@ -1,0 +1,106 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+#whole {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+#page_top {
+    background-color: #388E3C;
+    color: white;
+    padding: 0; 
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#page_title {
+    padding: 25px 8px 15px 8px; 
+}
+
+#page_top h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+#switch_pages {
+    display: flex;
+    justify-content: center;
+    background-color: #2E7D32; 
+    padding: 10px 0;
+}
+
+.page_switch_button {
+    background-color: transparent;
+    color: #C8E6C9;
+    padding: 5px 15px;
+    margin: 0 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: normal;
+    transition: color 0.3s, background-color 0.3s;
+    border-bottom: 2px solid transparent;
+}
+
+/* 현재 페이지를 나타내는 버튼 (선택된 것처럼 보이게) */
+
+.page_switch_button.active {
+    color: white;
+    font-weight: bold;
+    border-bottom: 2px solid white;
+}
+
+.page_switch_button:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1); /* 호버 시 약간의 투명한 배경 */
+}
+
+.wrap_button {
+    margin-bottom: 30px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.button_list {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.btn {
+    width: 120px; 
+    background-color: #71a3d7;
+    color: white;
+    border: none;
+    padding: 10px 0;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.content {
+    padding: 20px 0;
+}
+
+.content section {
+    border: 1px solid #ccc;
+    padding: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    background-color: #e9ecef; 
+    border-radius: 8px;
+}

@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MARU Book analysis</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'maru/css/common.css' %}">
+</head>
+<body>
+    <div id="whole">
+        {% include 'maru/header.html' %}
+        <div class="content">
+                <!--통계 자료-->
+                <!--내부는 페이지 내용에 따라 section으로 구분해서 작성-->
+                <section class="statistics">
+                    <span>예시. 여기에는 원형 통계가 나타남</span>
+                    <p>예시. 여기에는 원형 통계가 나타남</p>
+                    <p>예시. 여기에는 원형 통계가 나타남</p>
+                    <p>예시. 여기에는 원형 통계가 나타남</p>
+                </section>
+                <section class="statistics">
+                    <span>예시. 여기에는 막대그래프가 나타남</span>
+                    <p>예시. 여기에는 원형 통계가 나타남</p>
+                    <p>예시. 여기에는 원형 통계가 나타남</p>
+                    <p>예시. 여기에는 원형 통계가 나타남</p>
+                </section>
+        </div>
+    </div>
+</body>
+</html>
