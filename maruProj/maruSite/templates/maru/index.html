@@ -10,22 +10,42 @@
     <div id="whole">
         {% include 'maru/header.html' %}
         <div class="content">
-                <!--통계 자료-->
-                <!--내부는 페이지 내용에 따라 section으로 구분해서 작성-->
-                <section class="statistics">
-                    <span>예시. 여기에는 원형 통계가 나타남</span>
-                    <img id="genre_chart" src="/rest/book_chart/" alt="Book Chart">
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                </section>
-                <section class="statistics">
-                    <span>예시. 여기에는 막대그래프가 나타남</span>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                </section>
+            <!--통계 자료-->
+            <!--내부는 페이지 내용에 따라 section으로 구분해서 작성-->
+            <section class="statistics">
+                <span>전지점 통합 장르 분포 차트</span>
+                <img id="genre_chart" src="" alt="장르 차트">
+                <p>예시. 여기에는 원형 통계가 나타남</p>
+                <p>예시. 여기에는 원형 통계가 나타남</p>
+            </section>
+            <section class="statistics">
+                <span>지역별 평균 가격 비교</span>
+                <img id="price_chart" src="" alt="가격 그래프"/>
+                <p>예시. 여기에는 원형 통계가 나타남</p>
+                <p>예시. 여기에는 원형 통계가 나타남</p>
+            </section>
         </div>
     </div>
+
+    <script>
+        // DOM 콘텐츠가 완전히 로드된 후 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            const genreChart = document.getElementById('genre_chart');
+            const priceChart = document.getElementById('price_chart');
+            const delay = 500; // 0.5초 지연 시간
+
+            // 1. 장르 차트 먼저 로드
+            if (genreChart) {
+                genreChart.src = "{% url 'genre-chart' %}?t={{ timestamp_genre }}";
+            }
+
+            // 2. 0.5초 후 가격 차트 로드
+            setTimeout(() => {
+                if (priceChart) {
+                    priceChart.src = "{% url 'price-chart' %}?t={{ timestamp_price }}";
+                }
+            }, delay);
+        });
+    </script>
 </body>
 </html>
