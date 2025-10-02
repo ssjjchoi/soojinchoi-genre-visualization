@@ -7,4 +7,5 @@
 $ pip install django
 $ pip install djangorestframework
 $ pip install matplotlib
+$ pip install pandas
 ```
