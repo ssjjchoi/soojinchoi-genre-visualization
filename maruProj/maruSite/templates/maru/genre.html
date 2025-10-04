@@ -5,26 +5,522 @@
     <meta charset="UTF-8">
     <title>MARU Book analysis</title>
     <link rel="stylesheet" type="text/css" href="{% static 'maru/css/common.css' %}">
+
+    <!-- Chart.js & DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+
+    <!-- 섬네일 스타일 -->
+    <style>
+        .genre-title {
+            font-size: 16px;
+            color: #445149; /* 원하는 장르 색 */
+            margin-bottom: 10px;
+        }
+
+        .book-title {
+            font-size: 14px;
+            color: rgb(96, 107, 95); /* 기본 책 제목 색 */
+            transition: color 0.1s; /* 호버 시 부드럽게 변함 */
+        }
+
+        .book-title:hover {
+            color: rgb(61, 193, 81); /* 마우스 올리면 색 변경 */
+        }
+
+        .genre-block {
+            flex: 1 1 calc(33.33% - 20px); /* 한 줄 3칸, gap 포함 */
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .genre-books {
+            display: flex;
+            gap: 10px;
+            justify-content: center;  /* ← 추가 */
+        }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; /* genre-books 안에서 flex 비율로 결정 */
+            max-width: 100px; /* 이미지 크기에 맞춰 고정 */
+        }
+
+        .book-card img {
+            width: 100px;
+            height: 130px;
+            max-height: 130px;
+            object-fit: contain;
+        }
+
+        .book-card p {
+            font-size: 13px;
+            text-align: center;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        .book-link {
+            text-decoration: none; /* 밑줄 제거 */
+            color: inherit;        /* 부모 색상 유지 */
+        }
+
+        #refresh-recommend-btn {
+            margin-top: 5px;     /* 버튼 위 여백 */
+            margin-bottom: 25px;   /* 버튼 아래 간격 추가 */
+            padding: 8px 10px;    /* 버튼 안쪽 여백 */
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: rgb(179, 179, 179);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #refresh-recommend-btn:hover {
+            background-color: #36da51;
+            color: rgb(255, 255, 255);  
+            transform: scale(1.05);
+        }
+
+        .recommend-section span {
+            display: block;
+            margin-bottom: 15px;  /* 기존보다 조금 여유 있게 */
+            font-weight: normal;     /* 필요하면 강조 */
+            font-size: 16px;       /* 기존과 맞춤 */
+        }
+
+        .recommend-container {
+            display: flex;
+            justify-content: center;   /* 가로 가운데 정렬 */
+            gap: 10px;                 /* 책 사이 간격 */
+            flex-wrap: wrap;           /* 화면 좁으면 줄 바꿈 */
+        }
+
+        .recommend-container .book-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 150px;
+        }
+
+        .recommend-container .book-card img {
+            width: 150px;      /* 이미지 가로 */
+            height: auto;     /* 이미지 세로 비율 */
+            max-height: 200px;   /* 너무 길어지면 제한 */
+            object-fit: contain; /* 이미지 꽉 차게 */
+        }
+
+
+        /* 반응형 모바일 */
+        @media (max-width: 768px) {
+            .genre-block {
+                flex: 1 1 calc(50% - 20px); /* 모바일: 한 줄 2칸 */
+            }
+            .book-card {
+                max-width: 90px;
+            }
+            .book-card p {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .genre-block {
+                flex: 1 1 100%; /* 모바일 좁은 화면: 한 줄 1칸 */
+            }
+            .book-card {
+                max-width: 80px;
+            }
+            .book-card p {
+                font-size: 11px;
+            }
+        }
+
+
+
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            background-color: #ffffff;
+            color: rgb(89, 89, 89);
+            border: 1px solid #c2c2c2;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        #back-to-top:hover {
+            opacity: 1;
+        }
+
+
+    </style>
+
+
 </head>
 <body>
     <div id="whole">
         {% include 'maru/header.html' %}
         <div class="content">
-                <!--통계 자료-->
-                <!--내부는 페이지 내용에 따라 section으로 구분해서 작성-->
-                <section class="statistics">
-                    <span>예시. 여기에는 원형 통계가 나타남</span>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                </section>
-                <section class="statistics">
-                    <span>예시. 여기에는 막대그래프가 나타남</span>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                    <p>예시. 여기에는 원형 통계가 나타남</p>
-                </section>
+
+
+            <!-- 통계 자료 시작 -->
+            <!-- 도넛 차트 -->
+            <section class="statistics">
+                <span>Kyobo Bookstore Data Across 5 Regions</span>
+                <canvas id="genreChart" width="300" height="300"></canvas>
+            </section>
+
+            <!-- 막대그래프 섹션 -->
+            <section class="statistics">
+                <span>Top Products by Genre</span>
+                <canvas id="genreGMVChart" width="600" height="400"></canvas>
+            </section>
+
+            <!-- 장르별 Top3 섬네일 섹션 -->
+            <section class="statistics">
+                <span>Top 3 books by genre. Click to view on Koybo.</span>
+                <div id="genre-thumbnails" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
+            </section>
+
+            <!-- 장르별 가격 표 섹션 -->
+            <section class="statistics">
+                <span>Book Prices by Genre (KRW)</span>
+                <canvas id="genrePriceChart" width="600" height="400"></canvas>
+            </section>
+
+            <!-- 장르별 추천 섹션 -->
+            <section class="statistics recommend-section">
+                <span>Click to discover more picks!</span>
+                <!-- <p id="refresh-message" style="font-size:12px; color:rgb(24, 148, 44); margin-top:5px; text-align:center;">
+                    F5 새로고침으로 다른 추천을 확인해보세요!
+                </p> -->
+                    <div style="text-align:center; margin-top:8px;">
+                    <button id="refresh-recommend-btn">Pick 3</button>
+
+                </div>
+
+                <div id="recommend-thumbnails" class="recommend-container"></div>
+            </section>
+            <!-- 통계자료 끝 -->
+
         </div>
     </div>
-</body>
+
+
+    <!-- Back to Top 버튼 -->
+    <button id="back-to-top" title="Back to Top">&#8593;</button>
+
+    <!-- Chart.js 스크립트 -->
+    <script>
+    // --- 도넛 차트 ---
+    fetch("{% url 'genre-data' %}")
+    .then(res => res.json())
+    .then(data => {
+        // asc,desc
+        const genreOrder = ["소설","시/에세이","경제","자기계발","만화","예술"];
+        data.sort((a,b) => genreOrder.indexOf(a.genre) - genreOrder.indexOf(b.genre));
+        // ------------------------
+
+        console.log("genre-data:", data);
+
+        const labels = data.map(d => d.genre);
+        const counts = data.map(d => d.count);
+        const total = counts.reduce((a,b)=>a+b,0);
+        const percents = counts.map(c => ((c/total)*100).toFixed(1));
+
+        new Chart(document.getElementById('genreChart'), {
+            type: 'doughnut',
+            data: {
+                labels: labels.map((label, i) => `${label} (${percents[i]}%)`),
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                    '#EB99A1','#EABF91','#F0E38D','#8CD1A8','#8CC7F0',
+                    '#C1A8F0','#EB8CCB','#8DD8CC','#F0C89A','#9CC3F0'
+                    ]
+                    // backgroundColor: [
+                    // '#FF6384','#36A2EB','#FFCE56','#8BC34A','#9C27B0',
+                    // '#FF9800','#009688','#795548','#607D8B','#E91E63'
+                    // ]
+                    // backgroundColor: [
+                    // '#FF6F61','#FFA07A','#FFB347','#FFD700','#FFE135',
+                    // '#FFA500','#FF8C00','#FF6347','#FF4500','#FF1493'
+                    // ]
+                    // backgroundColor: [
+                    // '#FFB3BA','#FFDFBA','#FFFFBA','#BAFFC9','#BAE1FF',
+                    // '#D7BAFF','#FFBAF2','#BAFFD9','#FFE3BA','#BFD4FF'
+                    // ]
+                    // backgroundColor: [
+                    // '#E53935','#D81B60','#8E24AA','#5E35B1','#3949AB',
+                    // '#1E88E5','#039BE5','#00ACC1','#00897B','#43A047'
+                    // ]
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '35%',
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '장르별 도서 현황',
+                        font: { size: 24, weight: 'bold' },
+                        padding: { top: 10, bottom: 1 }
+                    },
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 30 }
+                    },
+                    tooltip: { enabled: true, 
+                        titleFont: { size: 18, weight: 'bold' },
+                        bodyFont: { size: 26 },
+                        padding: 12,
+                        cornerRadius: 6
+                    },
+                    datalabels: {
+                        color: '#000',
+                        font: { weight: 'normal', size: 13 },
+                        formatter: (value, ctx) => {
+                            //const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                            //const percent = (value/total*100).toFixed(1);
+                            //return `${percent}%`; 
+                            return ``;
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    });
+
+
+
+    // --- 막대그래프 ---
+    fetch("{% url 'genre-gmv-data' %}")
+    .then(res => res.json())
+    .then(data => {
+        data.sort((a,b) => b.gmv - a.gmv);
+        console.log("genre-gmv-data sorted:", data);
+        
+        const labels = data.map(d => d.genre);
+        const gmvs = data.map(d => d.gmv);
+
+        new Chart(document.getElementById('genreGMVChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '장르별 GMV (price * num_of_review * score)',
+                    data: gmvs,
+                    backgroundColor: '#8CC7F0'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '장르별 핵심상품',
+                        font: { size: 20, weight: 'bold' }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: (ctx) => Math.round(ctx.raw).toLocaleString()
+                        }
+                    }
+
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (val) => val.toLocaleString()
+                        },
+                        grid: {
+                            display: true
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+    
+
+    //--- 썸네일 ----
+    
+    fetch("{% url 'genre-top3-json' %}") // 새로 만든 view에서 JSON 반환
+    .then(res => res.json())
+    .then(data => {
+        console.log("==== 장르별 top3 JSON 확인 ====");
+        console.log(data); // ← 여기 찍으면 전체 JSON 확인 가능
+
+        const container = document.getElementById('genre-thumbnails');
+        Object.keys(data).forEach(genre => {
+            const books = data[genre]; // top3 책 배열
+
+            const genreDiv = document.createElement('div');
+            genreDiv.classList.add('genre-block');
+
+            let html = `<h3 class="genre-title">${genre}</h3><div class="genre-books">`;
+            books.forEach(book => {
+                html += `
+                    <div class="book-card">
+                        <a href="${book.book_detail}" class="book-link">
+                            <img src="${book.book_img}" class="book-img">
+                            <p class="book-title">${book.title}</p>
+                        </a>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+
+            genreDiv.innerHTML = html;
+            container.appendChild(genreDiv);
+        });
+    });
+
+
+
+    // --- 장르별 가격 통계 ---
+    fetch("{% url 'genre-price-data' %}")
+    .then(res => res.json())
+    .then(data => {
+        data.sort((a, b) => b.mean - a.mean);
+        const labels = data.map(d => d.genre);
+        const avgPrices = data.map(d => d.mean);
+        const maxPrices = data.map(d => d.max);
+        const minPrices = data.map(d => d.min);
+
+        new Chart(document.getElementById('genrePriceChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '평균(Avg)',
+                        data: avgPrices,
+                        backgroundColor: '#5FA883',
+                        borderColor: '#333333',        // 테두리 색 (진한 회색)
+                        borderWidth: 1,
+                        borderSkipped: 'bottom'   // 아래쪽만 스킵 → 위·좌·우만 남음
+                    },
+                    {
+                        label: '최고(Max)',
+                        data: maxPrices,
+                        backgroundColor: '#8CD1A8CC'
+                    },
+                    {
+                        label: '최저(Min)',
+                        data: minPrices,
+                        backgroundColor: '#B3E8CB'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '장르별 도서가격',
+                        font: { size: 20, weight: 'bold' }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => Math.round(ctx.raw).toLocaleString() + ' 원'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (val) => val.toLocaleString() + ' 원'
+                        },
+                        grid: {  
+                            color: "rgba(0, 0, 0, 0.1)",   // 격자선 색상
+                            borderDash: [5, 5],            // 점선 (5px 선, 5px 공백)
+                            lineWidth: 0.5                 // 선 두께
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+
+
+    // ---------------------------
+    // --- 추천책3 ----
+    function loadRecommendedBooks() {     // 함수로 감싸기
+        fetch("{% url 'genre-recommend-top3' %}")
+            .then(res => res.json())
+            .then(data => {
+                console.log("추천 top3:", data);
+                const container = document.getElementById('recommend-thumbnails');
+                container.innerHTML = ""; // 기존 추천 제거 후 새로 표시
+                data.forEach(book => {
+                    const html = `
+                        <div class="book-card">
+                            <a href="${book.book_detail}" class="book-link">
+                                <img src="${book.book_img}" class="book-img">
+                                <p class="book-title">${book.title}</p>
+                            </a>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            });
+    }
+
+    // 페이지 처음 로드 시 실행
+    document.addEventListener("DOMContentLoaded", loadRecommendedBooks);
+
+    // “추천 다시 보기” 버튼 클릭 시에도 실행
+    document.getElementById("refresh-recommend-btn").addEventListener("click", loadRecommendedBooks);
+
+
+
+    // --------------------------------
+
+        // Back to Top 버튼 기능
+        const backToTop = document.getElementById('back-to-top');
+
+        // 클릭 시 상단 이동
+        backToTop.addEventListener('click', () => {
+            //window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0 }); // 즉시 점프
+        });
+
+        // 스크롤 일정 이상 내려가야 보이게
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+        backToTop.style.display = 'none'; // 초기 숨김
+
+
+    </script>
+
+    </body>
 </html>
