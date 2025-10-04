@@ -3,6 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MARU Book analysis</title>
     <link rel="stylesheet" type="text/css" href="{% static 'maru/css/common.css' %}">
 
@@ -30,6 +31,27 @@
             font-size: 16px;
             color: #445149; /* 원하는 장르 색 */
             margin-bottom: 10px;
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            max-width: 700px;
+            height: 50vw;
+            min-height: 250px;
+            margin: 0 auto;
+        }
+
+        .chart-wrapper canvas {
+            width: 100%
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .chart-wrapper { height: 350px; }
+        }
+
+        @media (max-width: 480px) {
+            .chart-wrapper { height: 250px; }
         }
 
         .book-title {
@@ -65,8 +87,8 @@
 
         .book-card img {
             width: 100px;
-            height: 130px;
-            max-height: 130px;
+            height: auto;
+            max-height: 150px;
             object-fit: contain;
         }
 
@@ -128,14 +150,21 @@
             object-fit: contain; /* 이미지 꽉 차게 */
         }
 
+        #genre-thumbnails {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;        
+            justify-content: center;
+        }
+
 
         /* 반응형 모바일 */
         @media (max-width: 768px) {
             .genre-block {
-                flex: 1 1 calc(50% - 20px); /* 모바일: 한 줄 2칸 */
+                flex: 1 1 calc(50% - 10px); /* 모바일: 한 줄 2칸 */
             }
             .book-card {
-                max-width: 90px;
+                max-width: 120px;
             }
             .book-card p {
                 font-size: 12px;
@@ -147,13 +176,17 @@
                 flex: 1 1 100%; /* 모바일 좁은 화면: 한 줄 1칸 */
             }
             .book-card {
-                max-width: 80px;
+                max-width: 100px;
             }
             .book-card p {
-                font-size: 11px;
+                font-size: 12px;
             }
         }
 
+        #genre-heatmap {
+            width: 100% !important;
+            height: 100% !important;
+        }
 
 
         #back-to-top {
@@ -192,13 +225,17 @@
             <!-- 도넛 차트 -->
             <section class="statistics">
                 <span style="color: rgb(112, 112, 112); font-size: 14px;">Kyobo Bookstore Data Across 5 Regions</span>
-                <canvas id="genreChart" width="500" height="500"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="genreChart"></canvas>
+                </div>
             </section>
 
             <!-- 막대그래프 섹션 -->
             <section class="statistics">
                 <span style="color: rgb(112, 112, 112); font-size: 14px;">Top Products by Genre</span>
-                <canvas id="genreGMVChart" width="600" height="400"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="genreGMVChart"></canvas>
+                </div>
             </section>
 
             <!-- 장르별 Top3 섬네일 섹션 -->
@@ -210,7 +247,9 @@
             <!-- 장르별 가격 표 섹션 -->
             <section class="statistics">
                 <span style="color: rgb(112, 112, 112); font-size: 14px;">Book Prices by Genre (KRW)</span>
-                <canvas id="genrePriceChart" width="600" height="400"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="genrePriceChart"></canvas>
+                </div>
             </section>
 
             <!-- 장르별 추천 섹션 -->
@@ -226,10 +265,12 @@
             </section>
 
 
-            <!-- 장르별 상관관계 히트맵 섹션 -->
+            <!-- 장르별 상관관계 히트맵 섹션 style="width:100%; height:500px;"-->
             <section class="statistics">
                 <span style="color: rgb(112, 112, 112); font-size: 14px;">Genre Correlation Heatmap (Price, Score, Reviews, GMV)</span>
-                <div id="genre-heatmap" style="width:100%; height:500px;"></div>
+                <div class="chart-wrapper">
+                    <div id="genre-heatmap"></div>
+                </div>
             </section>
 
 
@@ -259,6 +300,7 @@
         const total = counts.reduce((a,b)=>a+b,0);
         const percents = counts.map(c => ((c/total)*100).toFixed(1));
 
+
         new Chart(document.getElementById('genreChart'), {
             type: 'doughnut',
             data: {
@@ -280,6 +322,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false, 
                 cutout: '35%',
                 radius: '80%',   // 반지름 축소
                 plugins: {
@@ -287,7 +330,7 @@
                         display: true,
                         text: '장르별 도서 현황',
                         font: { size: 17, weight: 'bold' },
-                        padding: { top: 10, bottom: 1 }
+                        padding: { top: 0, bottom: 20 }
                     },
                     legend: {
                         position: 'right',
@@ -316,8 +359,9 @@
     });
 
 
-
+    //-----------------------
     // --- 막대그래프 ---
+    // ----------------------
     fetch("{% url 'genre-gmv-data' %}")
     .then(res => res.json())
     .then(data => {
@@ -334,11 +378,14 @@
                 datasets: [{
                     label: '장르별 GMV (price * num_of_review * score)',
                     data: gmvs,
-                    backgroundColor: '#8CC7F0'
+                    backgroundColor: '#8CC7F0',
+                    borderColor: '#333333',   // 테두리 색
+                    borderWidth: 1            // 테두리 두께
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -357,13 +404,19 @@
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: (val) => val.toLocaleString()
+                            callback: (val) => val.toLocaleString(),
+                            //stepSize: 10000,       // tick 간격 (데이터 크기에 맞춰 조정)
+                            //maxTicksLimit: 20       // 최대 표시 tick 수 제한
                         },
                         grid: {
                             display: true
                         }
                     },
                     x: {
+                        //ticks: {
+                            //maxRotation: 45,  // 글자 최대 45도 회전
+                            //minRotation: 0
+                        //},
                         grid: {
                             display: false
                         }
@@ -374,9 +427,9 @@
     });
 
     
-
+    // ----------------------
     //--- 썸네일 ----
-    
+    // ----------------------
     fetch("{% url 'genre-top3-json' %}") // 새로 만든 view에서 JSON 반환
     .then(res => res.json())
     .then(data => {
@@ -409,8 +462,9 @@
     });
 
 
-
+    // --------------------------
     // --- 장르별 가격 통계 ---
+    // --------------------------
     fetch("{% url 'genre-price-data' %}")
     .then(res => res.json())
     .then(data => {
@@ -447,6 +501,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -478,8 +533,9 @@
 
 
 
-    // ---------------------------
-    // --- 추천책3 ----
+    // --------------------------
+    // --- 추천책 3개 ----
+    // --------------------------
     function loadRecommendedBooks() {     // 함수로 감싸기
         fetch("{% url 'genre-recommend-top3' %}")
             .then(res => res.json())
@@ -510,8 +566,9 @@
 
 
 
-    // ----------------------------
+    // ---------------------------
     // --- 장르별 상관관계 히트맵 ---
+    // ---------------------------
     fetch("{% url 'genre-heatmap' %}")
     .then(res => res.json())
     .then(data => {
@@ -541,10 +598,17 @@
             colorbar: { title: 'Correlation' },
             hoverongaps: false,
             //hovertemplate: '%{y}<br>%{x}: %{z}<extra></extra>'
-            hovertemplate: '%{y} ↔ %{x}: %{z}<extra></extra>'
+            hovertemplate: '%{y} ↔ %{x}: %{z}<extra></extra>',
+            colorbar: {
+                title: 'Correlation',
+                thickness: 15,   // colorbar 두께
+                len: 0.8,        // colorbar 길이 (0~1)
+                y: 0.5           // 세로 중앙 정렬
+            }
         };
 
         const layout = {
+            autosize: true,
             title: {
             text: '장르별 지표 히트맵',
             font: {
@@ -554,9 +618,10 @@
                 weight: 'bold'
                 }
             },
-            margin: { t: 50, l: 80 },
-            yaxis: { automargin: true },
-            xaxis: { tickangle: -45 },
+            margin: { t: 50, l: 80, r:40, b:80 },
+            yaxis: { automargin: true},
+            xaxis: { tickangle: -45},
+    
             plot_bgcolor: 'rgba(0,0,0,0)',   // 그래프 내부 배경 투명
             paper_bgcolor: 'rgba(0,0,0,0)'   // 전체 배경 투명
         };
