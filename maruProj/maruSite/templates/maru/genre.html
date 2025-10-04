@@ -10,9 +10,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
 
     <!-- 섬네일 스타일 -->
     <style>
+        .statistics {
+            padding: 0;      /* 위/아래 여백 줄임 */
+            margin-bottom: 5px;  /* section 간 간격 줄임 */
+        }
+
+        .statistics span {
+            display: block;      /* block으로 만들어서 margin 조절 가능 */
+            margin-bottom: 5px;  /* 기본 10~15px 정도면 충분 */
+        }
+
         .genre-title {
             font-size: 16px;
             color: #445149; /* 원하는 장르 색 */
@@ -178,41 +191,49 @@
             <!-- 통계 자료 시작 -->
             <!-- 도넛 차트 -->
             <section class="statistics">
-                <span>Kyobo Bookstore Data Across 5 Regions</span>
-                <canvas id="genreChart" width="300" height="300"></canvas>
+                <span style="color: rgb(112, 112, 112); font-size: 14px;">Kyobo Bookstore Data Across 5 Regions</span>
+                <canvas id="genreChart" width="500" height="500"></canvas>
             </section>
 
             <!-- 막대그래프 섹션 -->
             <section class="statistics">
-                <span>Top Products by Genre</span>
+                <span style="color: rgb(112, 112, 112); font-size: 14px;">Top Products by Genre</span>
                 <canvas id="genreGMVChart" width="600" height="400"></canvas>
             </section>
 
             <!-- 장르별 Top3 섬네일 섹션 -->
             <section class="statistics">
-                <span>Top 3 books by genre. Click to view on Koybo.</span>
+                <span style="color: rgb(131, 131, 131); font-size: 14px;">Top 3 books by genre. Click to view on Koybo.</span>
                 <div id="genre-thumbnails" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
             </section>
 
             <!-- 장르별 가격 표 섹션 -->
             <section class="statistics">
-                <span>Book Prices by Genre (KRW)</span>
+                <span style="color: rgb(112, 112, 112); font-size: 14px;">Book Prices by Genre (KRW)</span>
                 <canvas id="genrePriceChart" width="600" height="400"></canvas>
             </section>
 
             <!-- 장르별 추천 섹션 -->
             <section class="statistics recommend-section">
-                <span>Click to discover more picks!</span>
+                <span style="color: rgb(31, 146, 77); font-size: 14px;">↓ Click to discover more picks!</span>
                 <!-- <p id="refresh-message" style="font-size:12px; color:rgb(24, 148, 44); margin-top:5px; text-align:center;">
                     F5 새로고침으로 다른 추천을 확인해보세요!
                 </p> -->
                     <div style="text-align:center; margin-top:8px;">
                     <button id="refresh-recommend-btn">Pick 3</button>
-
                 </div>
-
                 <div id="recommend-thumbnails" class="recommend-container"></div>
             </section>
+
+
+            <!-- 장르별 상관관계 히트맵 섹션 -->
+            <section class="statistics">
+                <span style="color: rgb(112, 112, 112); font-size: 14px;">Genre Correlation Heatmap (Price, Score, Reviews, GMV)</span>
+                <div id="genre-heatmap" style="width:100%; height:500px;"></div>
+            </section>
+
+
+
             <!-- 통계자료 끝 -->
 
         </div>
@@ -228,11 +249,9 @@
     fetch("{% url 'genre-data' %}")
     .then(res => res.json())
     .then(data => {
-        // asc,desc
-        const genreOrder = ["소설","시/에세이","경제","자기계발","만화","예술"];
-        data.sort((a,b) => genreOrder.indexOf(a.genre) - genreOrder.indexOf(b.genre));
-        // ------------------------
-
+        //data.sort((a,b) => genreOrder.indexOf(a.genre) - genreOrder.indexOf(b.genre));
+        data.sort((a,b) => b.count - a.count);
+        
         console.log("genre-data:", data);
 
         const labels = data.map(d => d.genre);
@@ -249,33 +268,25 @@
                     backgroundColor: [
                     '#EB99A1','#EABF91','#F0E38D','#8CD1A8','#8CC7F0',
                     '#C1A8F0','#EB8CCB','#8DD8CC','#F0C89A','#9CC3F0'
-                    ]
+                    ],
                     // backgroundColor: [
                     // '#FF6384','#36A2EB','#FFCE56','#8BC34A','#9C27B0',
                     // '#FF9800','#009688','#795548','#607D8B','#E91E63'
                     // ]
-                    // backgroundColor: [
-                    // '#FF6F61','#FFA07A','#FFB347','#FFD700','#FFE135',
-                    // '#FFA500','#FF8C00','#FF6347','#FF4500','#FF1493'
-                    // ]
-                    // backgroundColor: [
-                    // '#FFB3BA','#FFDFBA','#FFFFBA','#BAFFC9','#BAE1FF',
-                    // '#D7BAFF','#FFBAF2','#BAFFD9','#FFE3BA','#BFD4FF'
-                    // ]
-                    // backgroundColor: [
-                    // '#E53935','#D81B60','#8E24AA','#5E35B1','#3949AB',
-                    // '#1E88E5','#039BE5','#00ACC1','#00897B','#43A047'
-                    // ]
+                    borderColor: '#333333',   // 테두리 색
+                    borderWidth: 1,             // 테두리 두께
+                    spacing: 5,                 // 조각 사이 여유
                 }]
             },
             options: {
                 responsive: true,
                 cutout: '35%',
+                radius: '80%',   // 반지름 축소
                 plugins: {
                     title: {
                         display: true,
                         text: '장르별 도서 현황',
-                        font: { size: 24, weight: 'bold' },
+                        font: { size: 17, weight: 'bold' },
                         padding: { top: 10, bottom: 1 }
                     },
                     legend: {
@@ -283,14 +294,14 @@
                         labels: { boxWidth: 30 }
                     },
                     tooltip: { enabled: true, 
-                        titleFont: { size: 18, weight: 'bold' },
-                        bodyFont: { size: 26 },
-                        padding: 12,
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 14 },
+                        padding: 8,
                         cornerRadius: 6
                     },
                     datalabels: {
                         color: '#000',
-                        font: { weight: 'normal', size: 13 },
+                        font: { weight: 'bold', size: 14 },
                         formatter: (value, ctx) => {
                             //const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
                             //const percent = (value/total*100).toFixed(1);
@@ -332,7 +343,7 @@
                     title: {
                         display: true,
                         text: '장르별 핵심상품',
-                        font: { size: 20, weight: 'bold' }
+                        font: { size: 17, weight: 'bold' }
                     },
                     tooltip: {
                         enabled: true,
@@ -440,7 +451,7 @@
                     title: {
                         display: true,
                         text: '장르별 도서가격',
-                        font: { size: 20, weight: 'bold' }
+                        font: { size: 17, weight: 'bold' }
                     },
                     tooltip: {
                         callbacks: {
@@ -495,6 +506,69 @@
 
     // “추천 다시 보기” 버튼 클릭 시에도 실행
     document.getElementById("refresh-recommend-btn").addEventListener("click", loadRecommendedBooks);
+
+
+
+
+    // ----------------------------
+    // --- 장르별 상관관계 히트맵 ---
+    fetch("{% url 'genre-heatmap' %}")
+    .then(res => res.json())
+    .then(data => {
+        const genres = Object.keys(data); // ['소설','경제',...]
+        const metrics = ['Price','Score','Reviews','GMV']; // x축 4개
+
+        // z값: 각 장르별 [price, score, reviews, gmv]
+        const z = genres.map(g => [
+            data[g].price,
+            data[g].score,
+            data[g].num_of_review,
+            data[g].gmv
+        ]);
+
+        const zmin = Math.min(...z.flat());
+        const zmax = Math.max(...z.flat());
+
+        const trace = {
+            z: z,
+            x: genres,
+            y: genres,
+            type: 'heatmap',
+            colorscale: 'Cividis',
+            zmin: zmin,
+            zmax: zmax,
+            //colorbar: { title: 'Value' },
+            colorbar: { title: 'Correlation' },
+            hoverongaps: false,
+            //hovertemplate: '%{y}<br>%{x}: %{z}<extra></extra>'
+            hovertemplate: '%{y} ↔ %{x}: %{z}<extra></extra>'
+        };
+
+        const layout = {
+            title: {
+            text: '장르별 지표 히트맵',
+            font: {
+                size: 17,        
+                color: 'gray',
+                family: 'sans-serif',
+                weight: 'bold'
+                }
+            },
+            margin: { t: 50, l: 80 },
+            yaxis: { automargin: true },
+            xaxis: { tickangle: -45 },
+            plot_bgcolor: 'rgba(0,0,0,0)',   // 그래프 내부 배경 투명
+            paper_bgcolor: 'rgba(0,0,0,0)'   // 전체 배경 투명
+        };
+
+        Plotly.newPlot('genre-heatmap', [trace], layout, {responsive: true});
+    });
+
+
+
+
+
+
 
 
 

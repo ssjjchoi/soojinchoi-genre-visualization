@@ -157,11 +157,6 @@ def genre_top3_json(request):
 
 
 
-
-
-
-
-
 def genre_price_data(request):
     """장르별 가격 통계 JSON 반환"""
     books = load_books_from_json(JSON_PATH)
@@ -183,10 +178,6 @@ def genre_price_data(request):
     # JSON 변환
     result = price_stats.to_dict(orient='records')
     return JsonResponse(result, safe=False)
-
-
-
-
 
 
 
@@ -228,3 +219,36 @@ def genre_recommend_top3(request):
     recommended = top25.sample(3).to_dict(orient='records')
 
     return JsonResponse(recommended, safe=False)
+
+
+
+
+def genre_heatmap(request):
+    """장르별 price/score/reviews/gmv 히트맵용 JSON 반환"""
+    books = load_books_from_json(JSON_PATH)
+    data = []
+
+    for b in books:
+        try:
+            price = float(re.sub(r'[^0-9.]','', str(b.price))) if b.price else 0
+            score = float(re.sub(r'[^0-9.]','', str(b.score))) if b.score else 0
+            reviews = int(re.sub(r'[^0-9]','', str(b.num_of_review))) if b.num_of_review else 0
+            gmv = price * score * reviews
+        except:
+            price, score, reviews, gmv = 0, 0, 0, 0
+
+        data.append({
+            'genre': b.genre,
+            'price': price,
+            'score': score,
+            'num_of_review': reviews,
+            'gmv': gmv
+        })
+
+    df = pd.DataFrame(data)
+    # 장르별 평균
+    genre_avg = df.groupby('genre')[['price','score','num_of_review','gmv']].mean().round(2)
+    result = genre_avg.to_dict(orient='index')  # { '소설': {'price': ..., 'score': ..., 'num_of_review': ..., 'gmv': ...}, ... }
+
+    return JsonResponse(result)
+

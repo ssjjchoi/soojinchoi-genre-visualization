@@ -13,6 +13,7 @@ urlpatterns = [
     path('genre/top3/', viewsOfJenre.genre_top3_json, name='genre-top3-json'),
     path('genre/price-data/', viewsOfJenre.genre_price_data, name='genre-price-data'),
     path('genre/recommend-top3/', viewsOfJenre.genre_recommend_top3, name='genre-recommend-top3'),
+    path('genre/heatmap/', viewsOfJenre.genre_heatmap, name='genre-heatmap'),
 
 
     # location 페이지에서 사용
