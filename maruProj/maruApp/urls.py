@@ -15,6 +15,5 @@ urlpatterns = [
     path('genre/recommend-top3/', viewsOfJenre.genre_recommend_top3, name='genre-recommend-top3'),
     path('genre/heatmap/', viewsOfJenre.genre_heatmap, name='genre-heatmap'),
 
-
     # location 페이지에서 사용
 ]

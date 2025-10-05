@@ -88,7 +88,8 @@
         .book-card img {
             width: 100px;
             height: auto;
-            max-height: 150px;
+            min-height: 150px;
+            max-height: 170px;
             object-fit: contain;
         }
 
@@ -241,6 +242,9 @@
             <!-- 장르별 Top3 섬네일 섹션 -->
             <section class="statistics">
                 <span style="color: rgb(131, 131, 131); font-size: 14px;">Top 3 books by genre. Click to view on Koybo.</span>
+                <p id="refresh-message" style="font-size:17px; color:rgb(112, 112, 112); font-weight:bold; margin-top:5px; text-align:center;">
+                    장르별 책 둘러보기
+                </p>
                 <div id="genre-thumbnails" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
             </section>
 
@@ -255,9 +259,9 @@
             <!-- 장르별 추천 섹션 -->
             <section class="statistics recommend-section">
                 <span style="color: rgb(31, 146, 77); font-size: 14px;">↓ Click to discover more picks!</span>
-                <!-- <p id="refresh-message" style="font-size:12px; color:rgb(24, 148, 44); margin-top:5px; text-align:center;">
-                    F5 새로고침으로 다른 추천을 확인해보세요!
-                </p> -->
+                <p id="refresh-message" style="font-size:17px; color:rgb(112, 112, 112); font-weight:bold; margin-top:5px; text-align:center;">
+                    MARU의 추천책 pick!
+                </p>
                     <div style="text-align:center; margin-top:8px;">
                     <button id="refresh-recommend-btn">Pick 3</button>
                 </div>
@@ -613,7 +617,7 @@
             text: '장르별 지표 히트맵',
             font: {
                 size: 17,        
-                color: 'gray',
+                color: '#444444',
                 family: 'sans-serif',
                 weight: 'bold'
                 }

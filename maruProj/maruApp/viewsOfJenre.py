@@ -74,7 +74,6 @@ def genre_data(request):
     return JsonResponse(data, safe=False)
 
 
-
 def genre_gmv_data(request):
     books = load_books_from_json(JSON_PATH)
 
@@ -104,7 +103,6 @@ def genre_gmv_data(request):
 
     data = [{"genre": g, "gmv": round(v, 2)} for g, v in gmv_by_genre.items()]
     return JsonResponse(data, safe=False)
-
 
 
 def genre_top3_json(request):
@@ -156,7 +154,6 @@ def genre_top3_json(request):
     return JsonResponse(result)
 
 
-
 def genre_price_data(request):
     """장르별 가격 통계 JSON 반환"""
     books = load_books_from_json(JSON_PATH)
@@ -178,7 +175,6 @@ def genre_price_data(request):
     # JSON 변환
     result = price_stats.to_dict(orient='records')
     return JsonResponse(result, safe=False)
-
 
 
 def genre_recommend_top3(request):
@@ -219,8 +215,6 @@ def genre_recommend_top3(request):
     recommended = top25.sample(3).to_dict(orient='records')
 
     return JsonResponse(recommended, safe=False)
-
-
 
 
 def genre_heatmap(request):
