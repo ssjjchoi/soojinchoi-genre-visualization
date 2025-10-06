@@ -74,34 +74,95 @@ def genre_data(request):
     return JsonResponse(data, safe=False)
 
 
+# -----------------------------
+# 이전 버전: 장르별 GMV만 계산 (툴팁 내부 평균 리뷰/가격/점수 미포함)
+# 참고용으로 남겨둠, 현재는 아래 함수 사용
+# -----------------------------
+# def genre_gmv_data(request):
+#     books = load_books_from_json(JSON_PATH)
+
+#     gmv_by_genre = {}
+#     for book in books:
+#         try:
+#             # 가격 문자열에서 숫자만 추출 (예: "12,000원" → "12000")
+#             price_str = str(book.price)
+#             price_clean = re.sub(r'[^0-9.]', '', price_str)  
+#             price = float(price_clean) if price_clean else 0
+
+#             # 리뷰 수
+#             reviews_str = str(book.num_of_review)
+#             reviews_clean = re.sub(r'[^0-9]', '', reviews_str)
+#             reviews = int(reviews_clean) if reviews_clean else 0
+
+#             # 평점
+#             score_str = str(book.score)
+#             score_clean = re.sub(r'[^0-9.]', '', score_str)
+#             score = float(score_clean) if score_clean else 0
+
+#         except ValueError:
+#             price, reviews, score = 0, 0, 0
+
+#         gmv = price * reviews * score
+#         gmv_by_genre[book.genre] = gmv_by_genre.get(book.genre, 0) + gmv
+
+#     data = [{"genre": g, "gmv": round(v, 2)} for g, v in gmv_by_genre.items()]
+#     return JsonResponse(data, safe=False)
+
+
 def genre_gmv_data(request):
     books = load_books_from_json(JSON_PATH)
 
-    gmv_by_genre = {}
+    genre_stats = {}
+
     for book in books:
         try:
-            # 가격 문자열에서 숫자만 추출 (예: "12,000원" → "12000")
             price_str = str(book.price)
-            price_clean = re.sub(r'[^0-9.]', '', price_str)  
+            price_clean = re.sub(r'[^0-9.]', '', price_str)
             price = float(price_clean) if price_clean else 0
 
-            # 리뷰 수
             reviews_str = str(book.num_of_review)
             reviews_clean = re.sub(r'[^0-9]', '', reviews_str)
             reviews = int(reviews_clean) if reviews_clean else 0
 
-            # 평점
             score_str = str(book.score)
             score_clean = re.sub(r'[^0-9.]', '', score_str)
             score = float(score_clean) if score_clean else 0
-
         except ValueError:
             price, reviews, score = 0, 0, 0
 
         gmv = price * reviews * score
-        gmv_by_genre[book.genre] = gmv_by_genre.get(book.genre, 0) + gmv
 
-    data = [{"genre": g, "gmv": round(v, 2)} for g, v in gmv_by_genre.items()]
+        if book.genre not in genre_stats:
+            genre_stats[book.genre] = {
+                "gmv": 0,
+                "price_sum": 0,
+                "review_sum": 0,
+                "score_sum": 0,
+                "count": 0
+            }
+
+        genre_stats[book.genre]["gmv"] += gmv
+        genre_stats[book.genre]["price_sum"] += price
+        genre_stats[book.genre]["review_sum"] += reviews
+        genre_stats[book.genre]["score_sum"] += score
+        genre_stats[book.genre]["count"] += 1
+
+    # 평균 구하기
+    data = []
+    for genre, stats in genre_stats.items():
+        count = stats["count"]
+        avg_price = stats["price_sum"] / count if count else 0
+        avg_reviews = stats["review_sum"] / count if count else 0
+        avg_score = stats["score_sum"] / count if count else 0
+
+        data.append({
+            "genre": genre,
+            "gmv": round(stats["gmv"], 2),
+            "price": round(avg_price, 2),
+            "num_of_review": int(avg_reviews),
+            "score": round(avg_score, 2)
+        })
+
     return JsonResponse(data, safe=False)
 
 

@@ -320,8 +320,8 @@
                     // '#FF9800','#009688','#795548','#607D8B','#E91E63'
                     // ]
                     borderColor: '#333333',   // 테두리 색
-                    borderWidth: 1,             // 테두리 두께
-                    spacing: 5,                 // 조각 사이 여유
+                    borderWidth: 1,           // 테두리 두께
+                    spacing: 5,               // 조각 사이 여유
                 }]
             },
             options: {
@@ -371,6 +371,16 @@
     .then(data => {
         data.sort((a,b) => b.gmv - a.gmv);
         console.log("genre-gmv-data sorted:", data);
+
+        // --- extraData 생성 ---
+        const extraData = {};
+        data.forEach(d => {
+            extraData[d.genre] = {
+                price: d.price,
+                num_of_review: d.num_of_review,
+                score: d.score
+            };
+        });
         
         const labels = data.map(d => d.genre);
         const gmvs = data.map(d => d.gmv);
@@ -396,21 +406,41 @@
                         text: '장르별 핵심상품',
                         font: { size: 17, weight: 'bold' }
                     },
+                    // tooltip: {
+                    //     enabled: true,
+                    //     callbacks: {
+                    //         label: (ctx) => Math.round(ctx.raw).toLocaleString()
+                    //     }
+                    // }
                     tooltip: {
                         enabled: true,
                         callbacks: {
-                            label: (ctx) => Math.round(ctx.raw).toLocaleString()
+                            label: function(ctx) {
+                                const genre = ctx.label;                 // 현재 막대의 장르 이름
+                                const gmvStr = Math.round(ctx.raw).toLocaleString();
+
+                                const info = extraData[genre] || {};  // ← 추가: extraData에서 장르 정보 가져오기
+                                const price = info.price !== undefined ? Math.round(info.price).toLocaleString() : '-'; // 소수점 없이
+                                const reviews = info.num_of_review !== undefined ? info.num_of_review.toLocaleString() : '-'; // ← 리뷰 수 고침
+                                const score = info.score !== undefined ? info.score.toFixed(1) : '-'; // 그대로
+                                                    return [
+                                    `GMV: ${gmvStr}`,
+                                    `평균 가격: ${price}원`,
+                                    `평균 리뷰 수: ${reviews}개`,
+                                    `평균 평점: ${score}점`
+                                ];
+                            }
+
                         }
                     }
-
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
                             callback: (val) => val.toLocaleString(),
-                            //stepSize: 10000,       // tick 간격 (데이터 크기에 맞춰 조정)
-                            //maxTicksLimit: 20       // 최대 표시 tick 수 제한
+                            //stepSize: 10000,   // tick 간격 (데이터 크기에 맞춰 조정)
+                            //maxTicksLimit: 20  // 최대 표시 tick 수 제한
                         },
                         grid: {
                             display: true
